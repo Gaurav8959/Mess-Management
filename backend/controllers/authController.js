@@ -69,12 +69,7 @@ const CreateStudent = async (req, res) => {
 const GetStudent = async (req, res) => {
   try {
     const students = await student.find();
-    if (!students || students.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-    return res.status(200).json({ success: true, students });
+    return res.status(200).json({ success: true, students: students || [], message: students.length > 0 ? 'Students fetched successfully' : 'No students found' });
   } catch (error) {
     console.log("Student not found internal error", error);
     res.status(400).json({ success: false, message: "Internal Server Error" });
@@ -118,7 +113,7 @@ const DeleteStudent = async (req, res) => {
     if (!DelStudent) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: "Students not found" });
     }
     return res
       .status(200)
