@@ -2,6 +2,7 @@ import React from 'react';
 import { Row, Col, Tabs, Tab } from 'react-bootstrap';
 import AllStaff from './AllStaff';
 import AddStaff from './AddStaff';
+import { ToastContainer } from 'react-toastify';
 
 const Staff = () => {
   return (
@@ -17,6 +18,7 @@ const Staff = () => {
             <AddStaff />
           </Tab>
         </Tabs>
+        <ToastContainer />
       </Col>
     </Row>
   );

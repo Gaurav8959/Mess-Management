@@ -4,6 +4,7 @@ const cardSchema = new mongoose.Schema({
     studentid: {
         type: String,
         required: true,
+        ref: 'student'
     },
     date: {
         type: Date,

@@ -6,6 +6,7 @@ import staffSalary from "../models/StaffSalary.js";
 import expense from "../models/Expenses.js";
 import bcrypt from "bcryptjs";
 import { sendVerification } from "../middleware/Email.js";
+import { isValidObjectId } from "mongoose";
 //Create Student API
 const CreateStudent = async (req, res) => {
   try {
@@ -68,8 +69,26 @@ const CreateStudent = async (req, res) => {
 //Read Student API
 const GetStudent = async (req, res) => {
   try {
-    const students = await student.find();
-    return res.status(200).json({ success: true, students: students || [], message: students.length > 0 ? 'Students fetched successfully' : 'No students found' });
+    const { stdId } = req.query;
+    let students;
+    if (stdId) {
+      students = await student.findById(stdId);
+    } else {
+      students = await student.find();
+    }
+    if (!students || students.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No student found" });
+    }
+    return res.status(200).json({
+      success: true,
+      students: students || [],
+      message:
+        students.length > 0
+          ? "Students fetched successfully"
+          : "No students found",
+    });
   } catch (error) {
     console.log("Student not found internal error", error);
     res.status(400).json({ success: false, message: "Internal Server Error" });
@@ -80,15 +99,24 @@ const GetStudent = async (req, res) => {
 const UpdateStudent = async (req, res) => {
   try {
     const studentId = req.params.id;
+    const updateData = req.body;
+
+    if (req.file) {
+      updateData.profilephoto = req.file.filename;
+    }
 
     // Check if password is being updated
     if (req.body.password) {
       req.body.password = await bcrypt.hash(req.body.password, 12); // Hash the new password
     }
 
-    const updateStudent = await student.findByIdAndUpdate(studentId, req.body, {
-      new: true,
-    });
+    const updateStudent = await student.findByIdAndUpdate(
+      studentId,
+      updateData,
+      {
+        new: true,
+      }
+    );
     if (!updateStudent) {
       return res
         .status(404)
@@ -115,13 +143,11 @@ const DeleteStudent = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Students not found" });
     }
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Student Deleted Successfully",
-        DelStudent,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Student Deleted Successfully",
+      DelStudent,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: "Internal Server Error" });
   }
@@ -130,19 +156,35 @@ const DeleteStudent = async (req, res) => {
 //Create Card
 const CreateCard = async (req, res) => {
   try {
-    const { studentid, date, startdate, enddate, amount, status, cardno, extendays, cardenddate } =
-      req.body;
+    const {
+      studentid,
+      date,
+      startdate,
+      enddate,
+      amount,
+      status,
+      cardno,
+      extendays,
+      cardenddate,
+    } = req.body;
 
-    if (
-      !studentid ||
-      !amount ||
-      !status ||
-      !cardno ||
-      !cardenddate
-    ) {
+    if (!studentid || !amount || !status || !date || !cardno || !cardenddate) {
       return res
         .status(401)
         .json({ success: false, message: "All fields are required" });
+    }
+    if (!isValidObjectId(studentid)) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Student Id",
+      });
+    }
+    const ExistCard = await card.findById({ studentid });
+    if (ExistCard) {
+      return res.status(404).json({
+        success: false,
+        message: "Card already exist for this student",
+      });
     }
     const NewCard = new card({
       studentid,
@@ -168,7 +210,13 @@ const CreateCard = async (req, res) => {
 //Read Card
 const GetCard = async (req, res) => {
   try {
-    const cards = await card.find();
+    const { cardId } = req.query;
+    let cards;
+    if (cardId) {
+      cards = await card.findById( cardId );
+    }else{
+      cards = await card.find();
+    }
     if (!cards || cards.length === 0) {
       return res
         .status(404)
@@ -186,10 +234,10 @@ const Extend = async (req, res) => {
   try {
     const cardId = req.params.id;
     const updateCard = await card.findByIdAndUpdate(cardId, req.body, {
-      new: true
+      new: true,
     });
     if (!updateCard) {
-      return res.status(400).json({ success: true, message: "Card not found"});
+      return res.status(400).json({ success: true, message: "Card not found" });
     }
     if (updateCard.extendays >= 6) {
       const extenddays = updateCard.extendays;
@@ -198,10 +246,16 @@ const Extend = async (req, res) => {
       updateCard.cardenddate = newEndDate;
       await updateCard.save();
     }
-    return res.status(200).json({ success: true, message: "Card Updated or Extended Successfully", updateCard });
+    return res.status(200).json({
+      success: true,
+      message: "Card Updated or Extended Successfully",
+      updateCard,
+    });
   } catch (error) {
     console.log("Card not found internal error", error);
-    return res.status(400).json({ success: false, message: "Internal Server Error" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -350,7 +404,13 @@ const CreateStaff = async (req, res) => {
 //Read Staff
 const GetStaff = async (req, res) => {
   try {
-    const staffs = await staff.find();
+    const { staffId } = req.query;
+    let staffs;
+    if (staffId) {
+      staffs = await staff.findById(staffId);
+    } else {
+      staffs = await staff.find();
+    }
     if (!staffs || staffs.length === 0) {
       return res
         .status(404)
@@ -363,19 +423,44 @@ const GetStaff = async (req, res) => {
   }
 };
 
+//Read Staff Salary
+const GetStaffSalary = async (req, res) => {
+  try {
+    const { staffId } = req.query; // Get staffId from the query parameters
+
+    let salarys;
+    if (staffId) {
+      // Fetch salaries for the specific staffId
+      salarys = await staffSalary.find({ staffId }).populate("staffId");
+    } else {
+      // Fetch all salaries
+      salarys = await staffSalary.find().populate("staffId");
+    }
+
+    if (!salarys || salarys.length === 0) {
+      return res.status(200).json({
+        success: true,
+        salarys: [],
+        message: staffId
+          ? "No salaries found for this staff"
+          : "No staff salaries found",
+      });
+    }
+    return res.status(200).json({ success: true, salarys });
+  } catch (error) {
+    console.log("Error fetching staff salary", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 //Update Staff
 const UpdateStaff = async (req, res) => {
   try {
     const staffId = req.params.id;
 
-    const updateStaff = await staff.findByIdAndUpdate(
-      staffId,
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const updateStaff = await staff.findByIdAndUpdate(staffId, req.body, {
+      new: true,
+    });
     if (!updateStaff) {
       return res
         .status(404)
@@ -416,43 +501,41 @@ const DeleteStaff = async (req, res) => {
 //Staff Salary
 const StaffSalary = async (req, res) => {
   try {
-    const { staffId, name, amount, note } = req.body;
-    if (!staffId || !name || !amount || !note) {
+    const { staffId, amount, note, date } = req.body;
+
+    if (!staffId || !amount || !note || !date) {
       return res
         .status(400)
         .json({ success: false, message: "Please fill all fields" });
     }
+    if (!isValidObjectId(staffId)) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid Staff Id" });
+    }
+    const ExistStaff = await staff.findById(staffId);
+    if (!ExistStaff) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Staff not found" });
+    }
     const NewSalary = new staffSalary({
       staffId,
-      name,
       amount,
       note,
+      date,
     });
     await NewSalary.save();
-    return res
-      .status(200)
-      .json({ success: true, message: "Staff Salary Added Successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Staff Salary Added Successfully",
+      data: NewSalary,
+    });
   } catch (error) {
     console.log("Staff not found internal error", error);
     return res
       .status(400)
       .json({ success: false, message: "Internal Server Error" });
-  }
-};
-
-//Read Staff Salary
-const GetStaffSalary = async (req, res) => {
-  try {
-    const salarys = await staffSalary.find();
-    if (!salarys || salarys.length === 0) {
-      return res
-        .status(400)
-        .json({ success: true, message: "Staff Salary's not found" });
-    }
-    return res.status(200).json({ success: true, salarys });
-  } catch (error) {
-    console.log("Staff Salary not found internal error", error);
-    res.status(400).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -466,13 +549,11 @@ const DeleteSalary = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Staff Salary not found" });
     }
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Staff Salary Deleted Successfully",
-        DeleteSalary,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Staff Salary Deleted Successfully",
+      DeleteSalary,
+    });
   } catch (error) {
     console.log("Staff not found internal error", error);
     return res
@@ -484,10 +565,10 @@ const DeleteSalary = async (req, res) => {
 //Update Staff Salary
 const UpdateStaffSalary = async (req, res) => {
   try {
-    const staffId = req.params.id;
+    const staffSalaryId = req.params.id;
 
     const updateSalray = await staffSalary.findByIdAndUpdate(
-      staffId,
+      staffSalaryId,
       req.body,
       {
         new: true,
@@ -500,7 +581,7 @@ const UpdateStaffSalary = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      message: "Salay Updated Successfully",
+      message: "Salary Updated Successfully",
       updateSalray,
     });
   } catch (error) {
@@ -512,9 +593,11 @@ const UpdateStaffSalary = async (req, res) => {
 //Create Expenses
 const Expenses = async (req, res) => {
   try {
-    const { amount, date, note} = req.body;
+    const { amount, date, note } = req.body;
     if (!amount || !date || !note) {
-      return res.status(404).json({ success: false, message: "All Fields are Required"});
+      return res
+        .status(404)
+        .json({ success: false, message: "All Fields are Required" });
     }
     const NewExpenses = new expense({
       amount,
@@ -522,7 +605,11 @@ const Expenses = async (req, res) => {
       note,
     });
     await NewExpenses.save();
-    return res.status(200).json({ success: true, message: "Expenses Added Successfully", NewExpenses});
+    return res.status(200).json({
+      success: true,
+      message: "Expenses Added Successfully",
+      NewExpenses,
+    });
   } catch (error) {
     console.log("Expenses Creation error internal", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -532,7 +619,13 @@ const Expenses = async (req, res) => {
 //Read Expenses
 const GetExpenses = async (req, res) => {
   try {
-    const expenses = await expense.find();
+    const { expenseId } = req.query;
+    let expenses;
+    if (expenseId) {
+      expenses = await expense.findById( expenseId );
+    }else{
+      expenses = await expense.find();
+    }
     if (!expenses || expenses.length === 0) {
       return res
         .status(400)
@@ -544,6 +637,7 @@ const GetExpenses = async (req, res) => {
     res.status(400).json({ success: false, message: "Internal Server Error" });
   }
 };
+
 
 //Update Expenses
 const UpdateExpenses = async (req, res) => {
@@ -583,13 +677,11 @@ const DeleteExpenses = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Expenses not found" });
     }
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Expenses Deleted Successfully",
-        DeleteExpenses,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Expenses Deleted Successfully",
+      DeleteExpenses,
+    });
   } catch (error) {
     console.log("Expenses not found internal error", error);
     return res
@@ -605,13 +697,17 @@ const EmailForForgetPassword = async (req, res) => {
 
     // Check if email is provided
     if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
     }
 
     // Check if user exists
     const userExist = await student.findOne({ email });
     if (!userExist) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Generate OTP
@@ -645,13 +741,17 @@ const CheckOtp = async (req, res) => {
 
     // Check if both email and OTP are provided
     if (!email || !otp) {
-      return res.status(400).json({ success: false, message: "Email and OTP are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and OTP are required" });
     }
 
     // Find the user by email
     const user = await student.findOne({ email });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Check if OTP matches and is not expired
@@ -660,7 +760,9 @@ const CheckOtp = async (req, res) => {
     }
 
     if (Date.now() > user.otpExpires) {
-      return res.status(400).json({ success: false, message: "OTP has expired" });
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP has expired" });
     }
 
     // Invalidate the OTP to prevent reuse
@@ -669,7 +771,9 @@ const CheckOtp = async (req, res) => {
     user.isOtpVerified = true;
     await user.save();
 
-    return res.status(200).json({ success: true, message: "OTP verified successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "OTP verified successfully" });
   } catch (error) {
     console.error("Error in CheckOtp:", error);
     return res.status(500).json({
@@ -685,19 +789,26 @@ const ResetPassword = async (req, res) => {
 
     // Check if both email and new password are provided
     if (!email || !newPassword) {
-      return res.status(400).json({ success: false, message: "Email and new password are required" });
+      return res.status(400).json({
+        success: false,
+        message: "Email and new password are required",
+      });
     }
     // Find the user by email
     const user = await student.findOne({ email });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Check if OTP verification flag is set
-    if (!user.isOtpVerified ) {
-      return res.status(403).json({ success: false, message: "OTP verification is required" });
+    if (!user.isOtpVerified) {
+      return res
+        .status(403)
+        .json({ success: false, message: "OTP verification is required" });
     }
-    
+
     //Hash new password
     if (newPassword) {
       newPassword = await bcrypt.hash(newPassword, 12);
@@ -708,7 +819,9 @@ const ResetPassword = async (req, res) => {
     user.isOtpVerified = false; // Reset the flag after successful password reset
     await user.save();
 
-    return res.status(200).json({ success: true, message: "Password reset successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully" });
   } catch (error) {
     console.error("Error in ResetPassword:", error);
     return res.status(500).json({
@@ -717,8 +830,6 @@ const ResetPassword = async (req, res) => {
     });
   }
 };
-
-
 
 export {
   //Student
@@ -736,7 +847,7 @@ export {
   //Auth
   Logout,
   Login,
-  
+
   //Salary
   GetStaffSalary,
   UpdateStaffSalary,
@@ -748,7 +859,7 @@ export {
   GetStaff,
   DeleteStaff,
   UpdateStaff,
-  
+
   //Expenses
   GetExpenses,
   Expenses,
@@ -757,9 +868,9 @@ export {
 
   //Admin Create
   CreateAdmin,
-  
+
   //Forget Password Student
   EmailForForgetPassword,
   CheckOtp,
-  ResetPassword
+  ResetPassword,
 };

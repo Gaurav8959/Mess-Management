@@ -6,14 +6,11 @@ const staffSalarySchema = new mongoose.Schema({
     staffId: {
         type: String,
         required: true,
-    },
-    name: {
-        type: String,
-        required: true,
+        ref: "staff"
     },
     date: {
         type: Date,
-        default: Date.now,
+        required: true,
     },
     amount: {
         type: Number,

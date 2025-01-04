@@ -1,35 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../combine.css';
-import { Col, Card, Table, Pagination, Modal, Form } from 'react-bootstrap';
+import { Col, Card, Table, Pagination, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import DeleteStaff from './DeleteStaff';
-import UpdateStaff from './UpdateStaff';
+import DeleteSalary from './DeleteSalary';
+import UpdateSalary from './UpdateSalary';
 
-const AllStaff = () => {
+const AllSalary = () => {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [staffIdToDelete, setStaffIdToDelete] = useState(null);
+  const [salaryIdToDelete, setSalaryIdToDelete] = useState(null);
   const [showUpdateModel, setShowUpdateModel] = useState(false);
-  const [staffUid, setStaffUid] = useState(null);
+  const [salaryUid, setSalaryUid] = useState(null);
+  const [staffId, setStaffId] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const staff = await axios.get('http://localhost:8009/api/getstaff');
-        const res = staff.data;
-        setData(res.staffs || []);
-      } catch (error) {
-        console.log(error);
+  const fetchData = async () => {
+    try {
+      const salary = await axios.get('http://localhost:8009/api/readsalary');
+      const res = salary.data;
+      if (res.success && res.salarys.length === 0) {
+        console.log(res.message); // Log the message for debugging
       }
-    };
+      setData(res.salarys || []);
+    } catch (error) {
+      console.error(error.response?.data?.message || "Failed to fetch data");
+    }
+  };
+  useEffect(() => {
     fetchData();
   }, [data]);
 
-  const filteredData = data.filter((staff) => staff.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Function to format the date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // Adjust locale as needed ('en-US' for MM/DD/YYYY, 'en-GB' for DD/MM/YYYY)
+  };
+
+  const filteredData = data.filter((salary) => salary.staffId.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const handlePageChange = (pageNumber) => {
@@ -39,27 +49,29 @@ const AllStaff = () => {
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
   const handleDelete = (id) => {
-    setStaffIdToDelete(id);
+    setSalaryIdToDelete(id);
     setShowDeleteModal(true);
+    fetchData();
   };
-  const handleUpdate = (stffUid) => {
-    if(stffUid){
-      setStaffUid(stffUid);
-    setShowUpdateModel(true);
-    }
-  }
- 
+    const handleUpdate = (staffUid,salaryUId) => {
+      if (staffUid && salaryUId) {
+        setStaffId(staffUid);
+        setSalaryUid(salaryUId);
+        setShowUpdateModel(true);
+        fetchData();
+      }
+    };
 
   return (
     <>
-      <UpdateStaff show={showUpdateModel} handleUclose={() => setShowUpdateModel(false)} staffUid={staffUid}/>
+      <UpdateSalary show={showUpdateModel} handleUclose={() => setShowUpdateModel(false)} salaryUid={salaryUid} staffId={staffId} />
 
-      <DeleteStaff show={showDeleteModal} handleClose={() => setShowDeleteModal(false)} stufftId={staffIdToDelete} />
+      <DeleteSalary show={showDeleteModal} handleClose={() => setShowDeleteModal(false)} salaryId={salaryIdToDelete} />
 
       <Col xs={12} md={12} lg={12} className="mb-4">
         <Card className="Recent-Users widget-focus-lg shadow-lg">
           <Card.Header className="d-flex justify-content-between mobile-flex-container align-items-center">
-            <Card.Title as="h5">All Staff</Card.Title>
+            <Card.Title as="h5">All Salary</Card.Title>
             <Form.Control
               type="text"
               placeholder="Search by name..."
@@ -74,33 +86,35 @@ const AllStaff = () => {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Name</th>
-                    <th>Contact Details</th>
-                    <th>Desigination</th>
+                    <th>Staff-Name</th>
+                    <th>Amount</th>
+                    <th>Note</th>
+                    <th>Date</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.length > 0 ? (
-                    paginatedData.map((staff, index) => (
-                      <tr key={staff.id || index} className="unread">
+                    paginatedData.map((salary, index) => (
+                      <tr key={salary.id || index} className="unread">
                         <td>{startIndex + index + 1}</td>
                         <td>
-                          <h6 className="mb-1">{staff.name}</h6>
+                          <h6 className="mb-1">{salary.staffId.name}</h6>
                         </td>
                         <td>
-                          <h6 className="mb-1">{staff.email}</h6>
-                          <h6 className="mb-1">{staff.mobile}</h6>
-                          <h6 className="mb-1">{staff.address}</h6>
+                          <h6 className="mb-1">{salary.amount}</h6>
                         </td>
                         <td>
-                          <h6 className="mb-1">{staff.desigination}</h6>
+                          <h6 className="mb-1">{salary.note}</h6>
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(staff._id)}>
+                          <h6 className="mb-1">{formatDate(salary.date)}</h6>
+                        </td>
+                        <td>
+                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(salary.staffId._id, salary._id)}>
                             Update
                           </Link>
-                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(staff._id)}>
+                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(salary._id)}>
                             Delete
                           </Link>
                         </td>
@@ -109,7 +123,7 @@ const AllStaff = () => {
                   ) : (
                     <tr>
                       <td colSpan="5" className="text-center" style={{ color: 'red' }}>
-                        No students found.
+                        No Salary found.
                       </td>
                     </tr>
                   )}
@@ -134,4 +148,4 @@ const AllStaff = () => {
   );
 };
 
-export default AllStaff;
+export default AllSalary;

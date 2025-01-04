@@ -34,7 +34,7 @@ const router = express.Router();
 
 router.post("/createstudent", authenticate, fileUpload, CreateStudent);
 router.get("/getstudent", GetStudent);
-router.put("/updatestudent/:id", authenticate, UpdateStudent);
+router.put("/updatestudent/:id", authenticate, fileUpload, UpdateStudent);
 router.delete("/deletestd/:id", authenticate, DeleteStudent);
 router.post("/createcard", authenticate, CreateCard);
 router.get("/getcard", GetCard);
@@ -49,7 +49,7 @@ router.post("/staffsalary", authenticate, StaffSalary);
 router.get("/readsalary", GetStaffSalary);
 router.delete("/deletestaffsalary/:id", authenticate, DeleteSalary);
 router.put("/updatesalary/:id", authenticate, UpdateStaffSalary);
-router.put('/updatestaff/:id',authenticate,UpdateStaff);
+router.put('/updatestaff/:id',authenticate, UpdateStaff);
 router.post('/createexpenses',authenticate,Expenses);
 router.get('/readexpenses',GetExpenses);
 router.put('/updateexpenses/:id',authenticate,UpdateExpenses);

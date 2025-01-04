@@ -7,3 +7,14 @@
     display: flex;
     justify-content: center;
 }
+@media (max-width: 600px) {
+  .mobile-flex-container {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+@media (max-width: 600px) {
+  .allstd {
+    margin-top: 15px;
+  }
+}

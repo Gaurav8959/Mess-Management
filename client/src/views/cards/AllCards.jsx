@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../combine.css';
-import { Col, Card, Table, Pagination, Modal, Form } from 'react-bootstrap';
+import { Col, Card, Table, Pagination, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import DeleteStaff from './DeleteStaff';
-import UpdateStaff from './UpdateStaff';
+import DeleteCard from './DeleteCard';
+import UpdateCard from './UpdateCard';
 
-const AllStaff = () => {
+const AllSalary = () => {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [staffIdToDelete, setStaffIdToDelete] = useState(null);
+  const [cardIdToDelete, setCardIdToDelete] = useState(null);
   const [showUpdateModel, setShowUpdateModel] = useState(false);
-  const [staffUid, setStaffUid] = useState(null);
+  const [cardUid, setCardUid] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const staff = await axios.get('http://localhost:8009/api/getstaff');
-        const res = staff.data;
-        setData(res.staffs || []);
+        const cards = await axios.get('http://localhost:8009/api/getcard');
+        const res = cards.data;
+        setData(res.cards || []);
       } catch (error) {
         console.log(error);
       }
@@ -29,7 +29,13 @@ const AllStaff = () => {
     fetchData();
   }, [data]);
 
-  const filteredData = data.filter((staff) => staff.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Function to format the date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // Adjust locale as needed ('en-US' for MM/DD/YYYY, 'en-GB' for DD/MM/YYYY)
+  };
+
+  const filteredData = data.filter((cards) => cards.status.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const handlePageChange = (pageNumber) => {
@@ -39,27 +45,26 @@ const AllStaff = () => {
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
   const handleDelete = (id) => {
-    setStaffIdToDelete(id);
+    setCardIdToDelete(id);
     setShowDeleteModal(true);
   };
-  const handleUpdate = (stffUid) => {
-    if(stffUid){
-      setStaffUid(stffUid);
-    setShowUpdateModel(true);
-    }
-  }
- 
+    const handleUpdate = (cardUid) => {
+      if (cardUid) {
+        setCardUid(cardUid);
+        setShowUpdateModel(true);
+      }
+    };
 
   return (
     <>
-      <UpdateStaff show={showUpdateModel} handleUclose={() => setShowUpdateModel(false)} staffUid={staffUid}/>
+      <UpdateCard show={showUpdateModel} handleUclose={() => setShowUpdateModel(false)} CardUid={cardUid} />
 
-      <DeleteStaff show={showDeleteModal} handleClose={() => setShowDeleteModal(false)} stufftId={staffIdToDelete} />
+      <DeleteCard show={showDeleteModal} handleClose={() => setShowDeleteModal(false)} cardId={cardIdToDelete} />
 
       <Col xs={12} md={12} lg={12} className="mb-4">
         <Card className="Recent-Users widget-focus-lg shadow-lg">
           <Card.Header className="d-flex justify-content-between mobile-flex-container align-items-center">
-            <Card.Title as="h5">All Staff</Card.Title>
+            <Card.Title as="h5">All Cards</Card.Title>
             <Form.Control
               type="text"
               placeholder="Search by name..."
@@ -74,33 +79,40 @@ const AllStaff = () => {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Name</th>
-                    <th>Contact Details</th>
-                    <th>Desigination</th>
+                    <th>Student-Name</th>
+                    <th>Card No.</th>
+                    <th>Amount</th>
+                    <th>Card-Date</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.length > 0 ? (
-                    paginatedData.map((staff, index) => (
-                      <tr key={staff.id || index} className="unread">
+                    paginatedData.map((cards, index) => (
+                      <tr key={cards.id || index} className="unread">
                         <td>{startIndex + index + 1}</td>
                         <td>
-                          <h6 className="mb-1">{staff.name}</h6>
+                          <h6 className="mb-1">{cards.studentid}</h6>
                         </td>
                         <td>
-                          <h6 className="mb-1">{staff.email}</h6>
-                          <h6 className="mb-1">{staff.mobile}</h6>
-                          <h6 className="mb-1">{staff.address}</h6>
+                          <h6 className="mb-1">{cards.cardno}</h6>
                         </td>
                         <td>
-                          <h6 className="mb-1">{staff.desigination}</h6>
+                          <h6 className="mb-1">{cards.amount}</h6>
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(staff._id)}>
-                            Update
+                          <h6 className="mb-1">Start Date:{formatDate(cards.date)}</h6>
+                          <h6 className="mb-1">End Date:{formatDate(cards.cardenddate)}</h6>
+                        </td>
+                        <td>
+                          <h6 className="mb-1">{cards.status}</h6>
+                        </td>
+                        <td>
+                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(cards._id)}>
+                            Extened
                           </Link>
-                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(staff._id)}>
+                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(cards._id)}>
                             Delete
                           </Link>
                         </td>
@@ -109,7 +121,7 @@ const AllStaff = () => {
                   ) : (
                     <tr>
                       <td colSpan="5" className="text-center" style={{ color: 'red' }}>
-                        No students found.
+                        No Cards found.
                       </td>
                     </tr>
                   )}
@@ -134,4 +146,4 @@ const AllStaff = () => {
   );
 };
 
-export default AllStaff;
+export default AllSalary;

@@ -4,13 +4,13 @@ import '../combine.css';
 import { Button, Modal } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
-const DeleteStudent = ({ show, studentId,handleClose }) => {
+const DeleteStaff = ({ show, stufftId,handleClose }) => {
   //Delete Student
 
   const Delete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.delete(`http://localhost:8009/api/deletestd/${id}`, {
+      const res = await axios.delete(`http://localhost:8009/api/deletestaff/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -21,7 +21,7 @@ const DeleteStudent = ({ show, studentId,handleClose }) => {
         toast.error(res.data.message);
       }
     } catch (error) {
-      console.error('Error deleting student:', error);
+      console.error('Error deleting Staff:', error);
       toast.error(error || 'An error occurred');
     }
   };
@@ -33,7 +33,7 @@ const DeleteStudent = ({ show, studentId,handleClose }) => {
   };
 
   const handlecnfrm = async () => {
-    await Delete(studentId);
+    await Delete(stufftId);
     handleClose();
   };
 
@@ -41,7 +41,7 @@ const DeleteStudent = ({ show, studentId,handleClose }) => {
     <>
       <Modal show={show} onHide={handledelClose}>
         <Modal.Header closeButton className="theme-bg">
-          <Modal.Title style={{ color: 'white' }}>Delete Student</Modal.Title>
+          <Modal.Title style={{ color: 'white' }}>Delete Staff</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ color: 'red' }}>ARE YOU SURE TO DELETE</Modal.Body>
         <Modal.Footer>
@@ -57,4 +57,4 @@ const DeleteStudent = ({ show, studentId,handleClose }) => {
   );
 };
 
-export default DeleteStudent;
+export default DeleteStaff;
