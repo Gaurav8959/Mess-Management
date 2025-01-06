@@ -4,6 +4,7 @@ import user from "../models/UserSchema.js";
 import staff from "../models/CreateStaff.js";
 import staffSalary from "../models/StaffSalary.js";
 import expense from "../models/Expenses.js";
+import cardNumber from "../models/CardNumber.js";
 import bcrypt from "bcryptjs";
 import { sendVerification } from "../middleware/Email.js";
 import { isValidObjectId } from "mongoose";
@@ -153,24 +154,101 @@ const DeleteStudent = async (req, res) => {
   }
 };
 
+//Card Count
+const CardCount = async(req, res) => {
+  try {
+    const id = req.params.id;
+    const count = await cardNumber.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    if (!count) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Card Count not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Card Count Updated Successfully",
+      count,
+    });
+  } catch (error) {
+    console.log("Card Count not found internal error", error);
+    return res
+      .status(400)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+//Card Count Create
+const CardCountCreate = async(req, res) => {
+  try {
+    const { cardcount } = req.body;
+    if(!cardcount){
+      return res
+        .status(400)
+        .json({ success: false, message: "Card Count is required" });
+    }
+    const cardnew = new cardNumber({
+      cardcount
+    });
+    await cardnew.save();
+    if (!cardnew) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Card Count not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Card Count Created Successfully",
+      cardnew,
+    });
+  } catch (error) {
+    console.log("Card Count not found internal error", error);
+    return res
+      .status(400)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+//card count get
+const CardCountGet = async(req, res) => {
+  try {
+    const cardcount = await cardNumber.find();
+    if (!cardcount) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Card Count not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Card Count Fetched Successfully",
+      cardcount,
+    });
+  } catch (error) {
+    console.log("Card Count not found internal error", error);
+    return res
+      .status(400)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+}
+
 //Create Card
 const CreateCard = async (req, res) => {
   try {
     const {
       studentid,
       date,
-      startdate,
-      enddate,
-      amount,
       status,
       cardno,
-      extendays,
       cardenddate,
+      payableamount,
+      paidamount,
+      dueamount,
     } = req.body;
 
-    if (!studentid || !amount || !status || !date || !cardno || !cardenddate) {
+    if (!studentid || !status || !date || !cardno || !cardenddate || !payableamount || !paidamount || !dueamount) {
       return res
-        .status(401)
+        .status(404)
         .json({ success: false, message: "All fields are required" });
     }
     if (!isValidObjectId(studentid)) {
@@ -179,7 +257,7 @@ const CreateCard = async (req, res) => {
         message: "Invalid Student Id",
       });
     }
-    const ExistCard = await card.findById({ studentid });
+    const ExistCard = await card.findOne({ studentid });
     if (ExistCard) {
       return res.status(404).json({
         success: false,
@@ -189,13 +267,12 @@ const CreateCard = async (req, res) => {
     const NewCard = new card({
       studentid,
       date,
-      startdate,
-      enddate,
-      amount,
       status,
       cardno,
       cardenddate,
-      extendays,
+      payableamount,
+      paidamount,
+      dueamount,
     });
     await NewCard.save();
     res
@@ -210,12 +287,12 @@ const CreateCard = async (req, res) => {
 //Read Card
 const GetCard = async (req, res) => {
   try {
-    const { cardId } = req.query;
+    const { stdId } = req.query;
     let cards;
-    if (cardId) {
-      cards = await card.findById( cardId );
+    if (stdId) {
+      cards = await card.find( { studentid:stdId } ).populate('studentid');
     }else{
-      cards = await card.find();
+      cards = await card.find().populate('studentid');
     }
     if (!cards || cards.length === 0) {
       return res
@@ -843,6 +920,9 @@ export {
   GetCard,
   DeleteCard,
   Extend,
+  CardCount,
+  CardCountCreate,
+  CardCountGet,
 
   //Auth
   Logout,

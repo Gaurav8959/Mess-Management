@@ -22,10 +22,13 @@ import {
   UpdateStaff,
   UpdateStudent,
   Expenses,
+  CardCount,
+  CardCountCreate,
   GetExpenses,
   UpdateExpenses,
   DeleteExpenses,
   EmailForForgetPassword,
+  CardCountGet,
   CheckOtp,
   ResetPassword
 } from "../controllers/authController.js";
@@ -50,6 +53,9 @@ router.get("/readsalary", GetStaffSalary);
 router.delete("/deletestaffsalary/:id", authenticate, DeleteSalary);
 router.put("/updatesalary/:id", authenticate, UpdateStaffSalary);
 router.put('/updatestaff/:id',authenticate, UpdateStaff);
+router.put('/cardcount/:id', CardCount);
+router.get('/cardcountget', CardCountGet);
+router.post('/cardcountcreate', CardCountCreate);
 router.post('/createexpenses',authenticate,Expenses);
 router.get('/readexpenses',GetExpenses);
 router.put('/updateexpenses/:id',authenticate,UpdateExpenses);

@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 
 const cardSchema = new mongoose.Schema({
+    // studentid: '',
+    // status: '',
+    // date: '',
+    // cardno: '',
+    // cardenddate: '',
+    // payableamount: '',
+    // paidamount: '',
+    // dueamount: ''
     studentid: {
         type: String,
         required: true,
@@ -21,10 +29,6 @@ const cardSchema = new mongoose.Schema({
     enddate: {
         type: Date,
     },
-    amount: {
-        type: Number,
-        required: true,
-    },
     status: {
         type: String,
         enum: ["Unpaid", "Paid", "Expired", "Hold"],
@@ -38,7 +42,19 @@ const cardSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-    }
+    },
+    payableamount: {
+        type: Number,
+        required: true,
+    },
+    paidamount: {
+        type: Number,
+        default: 0,
+    },
+    dueamount: {
+        type: Number,
+        default: 0,
+    },
 });
 
 const card = mongoose.model("card", cardSchema);

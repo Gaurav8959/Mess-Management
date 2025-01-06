@@ -14,7 +14,8 @@ const AllSalary = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardIdToDelete, setCardIdToDelete] = useState(null);
   const [showUpdateModel, setShowUpdateModel] = useState(false);
-  const [cardUid, setCardUid] = useState(null);
+  const [stdUid, setStdUid] = useState(null);
+  const [cardId, setCardId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,16 +49,17 @@ const AllSalary = () => {
     setCardIdToDelete(id);
     setShowDeleteModal(true);
   };
-    const handleUpdate = (cardUid) => {
-      if (cardUid) {
-        setCardUid(cardUid);
+    const handleUpdate = (stdUid, cardId) => {
+      if (stdUid && cardId) {
+        setStdUid(stdUid);
+        setCardId(cardId);
         setShowUpdateModel(true);
       }
     };
 
   return (
     <>
-      <UpdateCard show={showUpdateModel} handleUclose={() => setShowUpdateModel(false)} CardUid={cardUid} />
+      <UpdateCard show={showUpdateModel} handleUclose={() => setShowUpdateModel(false)} CardUId={cardId} StdUid={stdUid} />
 
       <DeleteCard show={showDeleteModal} handleClose={() => setShowDeleteModal(false)} cardId={cardIdToDelete} />
 
@@ -93,13 +95,14 @@ const AllSalary = () => {
                       <tr key={cards.id || index} className="unread">
                         <td>{startIndex + index + 1}</td>
                         <td>
-                          <h6 className="mb-1">{cards.studentid}</h6>
+                          <h6 className="mb-1">{cards.studentid.fullname}</h6>
                         </td>
                         <td>
                           <h6 className="mb-1">{cards.cardno}</h6>
                         </td>
                         <td>
-                          <h6 className="mb-1">{cards.amount}</h6>
+                          <h6 className="mb-1">Paid: {cards.paidamount}</h6>
+                          <h6 className="mb-1">Due: {cards.dueamount}</h6>
                         </td>
                         <td>
                           <h6 className="mb-1">Start Date:{formatDate(cards.date)}</h6>
@@ -109,7 +112,7 @@ const AllSalary = () => {
                           <h6 className="mb-1">{cards.status}</h6>
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(cards._id)}>
+                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(cards.studentid._id,cards._id)}>
                             Extened
                           </Link>
                           <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(cards._id)}>

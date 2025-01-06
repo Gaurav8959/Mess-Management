@@ -5,7 +5,7 @@ import '../combine.css';
 import { Row, Col, Form, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
-const UpdateCard = ({ show, handleUclose, CardUid }) => {
+const UpdateCard = ({ show, handleUclose, StdUid, CardUId }) => {
   const emptyCard = {
     startdate: '',
     enddate: '',
@@ -18,14 +18,14 @@ const UpdateCard = ({ show, handleUclose, CardUid }) => {
     const start = new Date(startdate);
     const end = new Date(enddate);
     const differenceInMs = end - start;
-    return differenceInMs >= 0 ? Math.ceil(differenceInMs / (1000 * 60 * 60 * 24)) : '';
+    return differenceInMs >= 0 ? Math.ceil(differenceInMs / (1000 * 60 * 60 * 24)) + 1 : '';
   };
 
   useEffect(() => {
     const fetchCardData = async () => {
       try {
-        const res = await axios.get(`http://localhost:8009/api/getcard?cardId=${CardUid}`);
-        const fetchedCard = res.data.cards;
+        const res = await axios.get(`http://localhost:8009/api/getcard?stdId=${StdUid}`);
+        const fetchedCard = res.data.cards[0];
         const formattedCard = {
           ...fetchedCard,
           startdate: formatDate(fetchedCard.startdate), // Format date for compatibility
@@ -39,10 +39,10 @@ const UpdateCard = ({ show, handleUclose, CardUid }) => {
       }
     };
 
-    if (CardUid) {
+    if (StdUid) {
       fetchCardData();
     }
-  }, [CardUid]);
+  }, [StdUid]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -70,7 +70,7 @@ const UpdateCard = ({ show, handleUclose, CardUid }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(`http://localhost:8009/api/extendcard/${CardUid}`, card, {
+      const res = await axios.put(`http://localhost:8009/api/extendcard/${CardUId}`, card, {
         headers: {
           Authorization: `Bearer ${token}`
         }
