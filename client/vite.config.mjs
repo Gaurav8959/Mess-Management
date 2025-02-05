@@ -10,7 +10,7 @@ const PORT = '3000';
         '/api': 'http://localhost:8009',
   
         },
-      port: 3000,
+      port: PORT,
     },
     
     

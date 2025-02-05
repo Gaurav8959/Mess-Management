@@ -154,7 +154,7 @@ const DeleteStudent = async (req, res) => {
   }
 };
 
-//Card Count
+//Card Count update
 const CardCount = async(req, res) => {
   try {
     const id = req.params.id;
@@ -181,6 +181,7 @@ const CardCount = async(req, res) => {
 
 //Card Count Create
 const CardCountCreate = async(req, res) => {
+  
   try {
     const { cardcount } = req.body;
     if(!cardcount){
@@ -234,6 +235,7 @@ const CardCountGet = async(req, res) => {
 
 //Create Card
 const CreateCard = async (req, res) => {
+  
   try {
     const {
       studentid,
@@ -246,7 +248,7 @@ const CreateCard = async (req, res) => {
       dueamount,
     } = req.body;
 
-    if (!studentid || !status || !date || !cardno || !cardenddate || !payableamount || !paidamount || !dueamount) {
+    if (!studentid || !status || !date || !cardno || !cardenddate || !payableamount || !paidamount) {
       return res
         .status(404)
         .json({ success: false, message: "All fields are required" });
@@ -310,22 +312,32 @@ const GetCard = async (req, res) => {
 const Extend = async (req, res) => {
   try {
     const cardId = req.params.id;
-    const updateCard = await card.findByIdAndUpdate(cardId, req.body, {
-      new: true,
-    });
-    if (!updateCard) {
-      return res.status(400).json({ success: true, message: "Card not found" });
+    if (!cardId) {
+      return res.status(400).json({ success: false, message: "Invalid card ID" });
     }
-    if (updateCard.extendays >= 6) {
-      const extenddays = updateCard.extendays;
+    const updateCard = await card.findById(cardId);
+    if (!updateCard) {
+      return res.status(404).json({ success: false, message: "Card not found" });
+    }
+
+    Object.assign(updateCard, req.body)
+
+    if (updateCard.startdate){
+      console.log(updateCard.startdate)
+      updateCard.status = 'Hold'
+    }
+
+    if (updateCard.extendays && updateCard.extendays >= 6) {
+      const extenddays = Number(updateCard.extendays);
       const newEndDate = new Date(updateCard.cardenddate);
       newEndDate.setDate(newEndDate.getDate() + extenddays);
       updateCard.cardenddate = newEndDate;
-      await updateCard.save();
+      updateCard.status = 'Paid'
     }
+    await updateCard.save();
     return res.status(200).json({
       success: true,
-      message: "Card Updated or Extended Successfully",
+      message: "Update Or Extended Successfully",
       updateCard,
     });
   } catch (error) {

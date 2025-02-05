@@ -25,7 +25,7 @@ const AddStudents = () => {
       const file = files[0];
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!allowedTypes.includes(file.type)) {
-        toast.error('Only JPEG and PNG files are allowed');
+        toast.warning('Only JPEG and PNG files are allowed', {progressStyle:{background:"black"}});
         return;
       }
     }

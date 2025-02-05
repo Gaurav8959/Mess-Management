@@ -24,6 +24,22 @@ function AuthWrapper({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
+  // Function to check if token is expired
+function isTokenExpired(token) {
+  const decodedToken = JSON.parse(atob(token.split('.')[1]));  // Decode JWT
+  const currentTime = Math.floor(Date.now() / 1000);  // Get current time in seconds
+  return decodedToken.exp < currentTime;  // Check if token is expired
+}
+
+// Function to remove token from localStorage
+function removeTokenIfExpired() {
+  const token = localStorage.getItem('token');
+  if (token && isTokenExpired(token)) {
+    localStorage.removeItem('token'); // Remove token from localStorage
+  }
+}
+
+
   useEffect(() => {
     const validateAdmin = async () => {
       const token = localStorage.getItem("token");
@@ -34,7 +50,7 @@ function AuthWrapper({ children }) {
         setIsAuthenticated(true);
       }
     };
-
+    removeTokenIfExpired();
     validateAdmin();
   }, [navigate]);
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Button, Row, Col, Card } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
+import Select from 'react-select';
 
 const AddSalary = () => {
   const [value, setValue] = useState({
@@ -11,24 +12,39 @@ const AddSalary = () => {
     note: ''
   });
 
-  //Get Staff Name
+  // Get Staff Name
   const [stafflist, setStaffList] = useState([]);
+  const [options, setOptions] = useState([]);
+
   useEffect(() => {
     const getStaffList = async () => {
-      try{
+      try {
         const res = await axios.get('http://localhost:8009/api/getstaff');
         setStaffList(res.data.staffs);
-      }catch(error){
+        // Transform staff list to options format for react-select
+        const staffOptions = res.data.staffs.map(staff => ({
+          value: staff._id,
+          label: staff.name
+        }));
+        setOptions(staffOptions);
+      } catch (error) {
         console.log(error);
       }
     };
     getStaffList();
-  },[]);
+  }, []);
 
   const handleOnchange = (e) => {
     setValue({
       ...value,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleStaffChange = (selectedOption) => {
+    setValue({
+      ...value,
+      staffId: selectedOption ? selectedOption.value : ''
     });
   };
 
@@ -70,14 +86,13 @@ const AddSalary = () => {
               <Form.Group className="mb-3 row">
                 <Form.Group className="col-12 col-md-6" controlId="formBasicBranch">
                   <Form.Label>Select Staff</Form.Label>
-                  <Form.Control as="select" name="staffId" onChange={handleOnchange} value={value.staffId}>
-                    <option value="">--Select Staff--</option>
-                    {stafflist.map((staff) => (
-                      <option key={staff._id} value={staff._id}>
-                        {staff.name}
-                      </option>
-                    ))}
-                  </Form.Control>
+                  <Select
+                    options={options}
+                    value={options.find(option => option.value === value.staffId)}
+                    onChange={handleStaffChange}
+                    placeholder="--Select Staff--"
+                    isClearable
+                  />
                 </Form.Group>
                 <Form.Group className="col-12 col-md-6">
                   <Form.Label>Amount</Form.Label>

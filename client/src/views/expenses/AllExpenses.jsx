@@ -100,10 +100,10 @@ const AllStaff = () => {
                           <h6 className="mb-1">{formatDate(expenses.date)}</h6>
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(expenses._id)}>
+                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleUpdate(expenses._id)}>
                             Update
                           </Link>
-                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(expenses._id)}>
+                          <Link to="#" className="label theme-bg5 text-white f-12" onClick={() => handleDelete(expenses._id)}>
                             Delete
                           </Link>
                         </td>

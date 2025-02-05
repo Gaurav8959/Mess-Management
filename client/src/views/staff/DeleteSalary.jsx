@@ -40,7 +40,7 @@ const DeleteSalary = ({ show, salaryId,handleClose }) => {
   return (
     <>
       <Modal show={show} onHide={handledelClose}>
-        <Modal.Header closeButton className="theme-bg">
+        <Modal.Header closeButton className="theme-bg5">
           <Modal.Title style={{ color: 'white' }}>Delete Salary</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ color: 'red' }}>ARE YOU SURE TO DELETE</Modal.Body>
@@ -48,7 +48,7 @@ const DeleteSalary = ({ show, salaryId,handleClose }) => {
           <Button variant="secondary" onClick={handledelClose}>
             No
           </Button>
-          <Button variant="primary" className='theme-bg' onClick={handlecnfrm}>
+          <Button variant="primary" className='theme-bg5' onClick={handlecnfrm}>
             Yes
           </Button>
         </Modal.Footer>

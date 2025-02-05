@@ -1,44 +1,43 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import avatar1 from 'assets/images/user/avatar-1.jpg';
+import axios from 'axios';
 
-const Friend = ({ data, activeId, clicked }) => {
-  let timeClass = ['d-block f-w-400'];
-  if (data.status) {
-    timeClass = [...timeClass, 'text-c-green'];
-  } else {
-    timeClass = [...timeClass, 'text-muted'];
-  }
+const Friend = ({ clicked }) => {
+  const [data, setData] = useState([]);
 
-  let time = '';
-  if (data.time) {
-    time = <small className={timeClass.join(' ')}>{data.time}</small>;
-  }
-
-  let newFriend = '';
-  if (data.new) {
-    newFriend = <div className="live-status">{data.new}</div>;
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const cards = await axios.get('http://localhost:8009/api/getcard');
+        const res = cards.data;
+        setData(res.cards || []);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [data]);
 
   return (
     <React.Fragment>
       {/* eslint-disable-next-line */}
       <Card
-        className={activeId === data.id ? 'userlist-box mb-0 shadow-none active' : 'userlist-box mb-0 shadow-none'}
+        className='userlist-box mb-0 shadow-none'
         style={{ flexDirection: 'row', backgroundColor: 'unset' }}
         onClick={clicked}
         onKeyDown={clicked}
       >
         <Link to="#" className="media-left">
           {' '}
-          <img className="media-object img-radius" src={data.photo} alt={data.name} />
-          {newFriend}
+          <img className="media-object img-radius" src={avatar1} alt={"Gaurav"} />
+          <div className="live-status">{1}</div>
         </Link>
         <Card.Body className="p-0">
           <h6 className="chat-header">
-            {data.name}
-            {time}
+            {"Gaurav"}
+            {/* {time} */}
           </h6>
         </Card.Body>
       </Card>
@@ -46,16 +45,16 @@ const Friend = ({ data, activeId, clicked }) => {
   );
 };
 
-Friend.propTypes = {
-  data: PropTypes.object,
-  activeId: PropTypes.number,
-  clicked: PropTypes.func,
-  photo: PropTypes.string,
-  id: PropTypes.number,
-  status: PropTypes.string,
-  time: PropTypes.string,
-  new: PropTypes.string,
-  name: PropTypes.string
-};
+// Friend.propTypes = {
+//   data: PropTypes.object,
+//   activeId: PropTypes.number,
+//   clicked: PropTypes.func,
+//   photo: PropTypes.string,
+//   id: PropTypes.number,
+//   status: PropTypes.string,
+//   time: PropTypes.string,
+//   new: PropTypes.string,
+//   name: PropTypes.string
+// };
 
 export default Friend;

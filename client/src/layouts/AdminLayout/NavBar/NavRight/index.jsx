@@ -39,9 +39,10 @@ const NavRight = () => {
   
       const data = await res.json();
   
-      if (data.success) {
+      if (data.success == true) {
         console.log("User successfully logged out");
         localStorage.removeItem("token"); // Clear the token from localStorage
+        localStorage.removeItem("userData");
         localStorage.setItem('LogoutToast', 'Logout Successfully!');
         history("/login"); // Redirect to login page
       } else {

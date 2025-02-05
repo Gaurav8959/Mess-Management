@@ -3,7 +3,7 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 
 const studentSchema = new mongoose.Schema({
-  studentId: {
+  fullname: {
     type: String,
     required: true,
   },

@@ -33,7 +33,7 @@ const Signin1 = () => {
   const loginuser = async (e) => {
     e.preventDefault();
     const { email, password } = inpval;
-  
+
     if (email === "" || password === "") {
       toast.error("All Fields are required!", { position: "top-center" });
     } else if (!email.includes("@")) {
@@ -42,16 +42,22 @@ const Signin1 = () => {
       toast.error("Password must be at least 6 characters", { position: "top-center" });
     } else {
       try {
-        const response = await fetch("/api/login", {
+        const response = await fetch("http://localhost:8009/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Login failed");
+        }
   
         const res = await response.json();
         //console.log(res.result.userValid.name);
-        localStorage.setItem("userData", JSON.stringify(res.result.userValid.name));
+        
         if (res.success) {
+          localStorage.setItem("userData", JSON.stringify(res.result.userValid.name));
           localStorage.setItem("token", res.result.token);
           localStorage.setItem("loginToast", "Login Successful!");
           history("/app/dashboard");
@@ -61,7 +67,7 @@ const Signin1 = () => {
           toast.error("Invalid login credentials!", { position: "top-center" });
         }
       } catch (error) {
-        toast.error("An error occurred while logging in. Please try again later.", { position: "top-center" });
+        toast.error(error.message, { position: "top-center" });
       }
     }
   };

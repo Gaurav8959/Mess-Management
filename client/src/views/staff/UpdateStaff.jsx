@@ -72,7 +72,7 @@ const UpdateStaff = ({ show, handleUclose, staffUid }) => {
   return (
     <>
       <Modal show={show} onHide={handleUpdClose}>
-        <Modal.Header closeButton className="theme-bg2">
+        <Modal.Header closeButton className="theme-bg">
           <Modal.Title style={{ color: 'white' }}>Update Staff</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -152,7 +152,7 @@ const UpdateStaff = ({ show, handleUclose, staffUid }) => {
                 </Form.Group>
 
                 <Modal.Footer>
-                  <Button variant="primary" className="theme-bg2" type="submit">
+                  <Button variant="primary" className="theme-bg" type="submit">
                     Submit
                   </Button>
                   <Button variant="secondary" onClick={handleUpdClose}>

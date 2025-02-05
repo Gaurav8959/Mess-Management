@@ -111,10 +111,10 @@ const AllSalary = () => {
                           <h6 className="mb-1">{formatDate(salary.date)}</h6>
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(salary.staffId._id, salary._id)}>
+                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleUpdate(salary.staffId._id, salary._id)}>
                             Update
                           </Link>
-                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(salary._id)}>
+                          <Link to="#" className="label theme-bg5 text-white f-12" onClick={() => handleDelete(salary._id)}>
                             Delete
                           </Link>
                         </td>

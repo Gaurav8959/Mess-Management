@@ -49,13 +49,13 @@ const AllSalary = () => {
     setCardIdToDelete(id);
     setShowDeleteModal(true);
   };
-    const handleUpdate = (stdUid, cardId) => {
-      if (stdUid && cardId) {
-        setStdUid(stdUid);
-        setCardId(cardId);
-        setShowUpdateModel(true);
-      }
-    };
+  const handleUpdate = (stdUid, cardId) => {
+    if (stdUid && cardId) {
+      setStdUid(stdUid);
+      setCardId(cardId);
+      setShowUpdateModel(true);
+    }
+  };
 
   return (
     <>
@@ -109,13 +109,29 @@ const AllSalary = () => {
                           <h6 className="mb-1">End Date:{formatDate(cards.cardenddate)}</h6>
                         </td>
                         <td>
-                          <h6 className="mb-1">{cards.status}</h6>
+                          {cards.status === 'Paid' ? (
+                            <>
+                              <i className="fa fa-circle text-c-green f-10 m-r-15" /> Paid
+                            </>
+                          ) : cards.status === 'Hold' ? (
+                            <>
+                              <i className="fa fa-circle text-c-yellow f-10 m-r-15" /> Hold
+                            </>
+                          ) : (
+                            <>
+                              <i className="fa fa-circle text-c-red f-10 m-r-15" /> Unpaid
+                            </>
+                          )}
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(cards.studentid._id,cards._id)}>
-                            Extened
+                          <Link
+                            to="#"
+                            className="label theme-bg text-white f-12"
+                            onClick={() => handleUpdate(cards.studentid._id, cards._id)}
+                          >
+                            Update
                           </Link>
-                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(cards._id)}>
+                          <Link to="#" className="label theme-bg5 text-white f-12" onClick={() => handleDelete(cards._id)}>
                             Delete
                           </Link>
                         </td>

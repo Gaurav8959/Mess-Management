@@ -89,7 +89,7 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
   return (
     <>
       <Modal show={show} onHide={handleUpdClose}>
-        <Modal.Header closeButton className="theme-bg2">
+        <Modal.Header closeButton className="theme-bg">
           <Modal.Title style={{ color: 'white' }}>Update Student</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -217,7 +217,7 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
                   <Form.Control type="file" name="profilephoto" onChange={handleFileChange} id="profilephoto" />
                 </Form.Group>
                 <Modal.Footer>
-                  <Button variant="primary" className="theme-bg2" type="submit">
+                  <Button variant="primary" className="theme-bg" type="submit">
                     Submit
                   </Button>
                   <Button variant="secondary" onClick={handleUpdClose}>

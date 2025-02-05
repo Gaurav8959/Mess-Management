@@ -152,10 +152,10 @@ const AllStudents = () => {
                           </Link>
                         </td>
                         <td>
-                          <Link to="#" className="label theme-bg2 text-white f-12" onClick={() => handleUpdate(student._id)}>
+                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleUpdate(student._id)}>
                             Update
                           </Link>
-                          <Link to="#" className="label theme-bg text-white f-12" onClick={() => handleDelete(student._id)}>
+                          <Link to="#" className="label theme-bg5 text-white f-12" onClick={() => handleDelete(student._id)}>
                             Delete
                           </Link>
                         </td>

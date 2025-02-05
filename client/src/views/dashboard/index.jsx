@@ -7,9 +7,10 @@ import avatar2 from '../../assets/images/user/avatar-2.jpg';
 import avatar3 from '../../assets/images/user/avatar-3.jpg';
 
 const dashSalesData = [
-  { title: 'Daily Sales', amount: '$249.95', icon: 'icon-arrow-up text-c-green', value: 50, class: 'progress-c-theme' },
-  { title: 'Monthly Sales', amount: '$2.942.32', icon: 'icon-arrow-down text-c-red', value: 36, class: 'progress-c-theme2' },
-  { title: 'Yearly Sales', amount: '$8.638.32', icon: 'icon-arrow-up text-c-green', value: 70, color: 'progress-c-theme' }
+  { title: 'Total Cards', amount: '80', icon: 'icon-arrow-up text-c-green', value: 100, class: 'progress-c-theme' },
+  { title: 'Total Card This Month', amount: '60', icon: 'icon-arrow-down text-c-red', value: 80, class: 'progress-c-theme2' },
+  { title: 'Total Expense This Month', amount: '$8.638.32', icon: 'icon-arrow-up text-c-green', value: 70, color: 'progress-c-theme' },
+  { title: 'Total Students', amount: '$8.638.32', icon: 'icon-arrow-up text-c-green', value: 70, color: 'progress-c-theme' }
 ];
 
 const DashDefault = () => {
@@ -146,7 +147,7 @@ const DashDefault = () => {
         <Col md={6} xl={8}>
           <Card className="Recent-Users widget-focus-lg">
             <Card.Header>
-              <Card.Title as="h5">Recent Users</Card.Title>
+              <Card.Title as="h5">Due Payment Students</Card.Title>
             </Card.Header>
             <Card.Body className="px-0 py-2">
               <Table responsive hover className="recent-users">
