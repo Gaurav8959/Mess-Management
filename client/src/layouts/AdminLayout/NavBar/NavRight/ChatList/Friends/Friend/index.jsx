@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import avatar1 from 'assets/images/user/avatar-1.jpg';
 import axios from 'axios';
 
-const Friend = ({ clicked }) => {
+const Friend = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -18,29 +18,33 @@ const Friend = ({ clicked }) => {
       }
     };
     fetchData();
-  }, [data]);
-
+  }, []);
   return (
     <React.Fragment>
       {/* eslint-disable-next-line */}
-      <Card
-        className='userlist-box mb-0 shadow-none'
-        style={{ flexDirection: 'row', backgroundColor: 'unset' }}
-        onClick={clicked}
-        onKeyDown={clicked}
-      >
-        <Link to="#" className="media-left">
-          {' '}
-          <img className="media-object img-radius" src={avatar1} alt={"Gaurav"} />
-          <div className="live-status">{1}</div>
-        </Link>
-        <Card.Body className="p-0">
-          <h6 className="chat-header">
-            {"Gaurav"}
-            {/* {time} */}
-          </h6>
-        </Card.Body>
-      </Card>
+      {data?.map((elem, index) => {
+        return (
+          <Card
+            className="userlist-box mb-0 shadow-none"
+            style={{ flexDirection: 'row', backgroundColor: 'unset' }}
+            key={elem.id || index}
+          >
+            <Link to="#" className="media-left">
+              {' '}
+              <img className="media-object img-radius" style={{height: '50px'}} src={elem.studentid.profilephoto
+                                ? `/src/assets/images/students/${elem.studentid.profilephoto}`
+                                : avatar1 } alt={'Gaurav'} />
+              <div className="live-status">{1}</div>
+            </Link>
+            <Card.Body className="p-0">
+              <h6 className="chat-header">
+                {elem.studentid.fullname}
+                {/* {time} */}
+              </h6>
+            </Card.Body>
+          </Card>
+        );
+      })}
     </React.Fragment>
   );
 };

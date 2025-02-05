@@ -39,10 +39,9 @@ const NavRight = () => {
   
       const data = await res.json();
   
-      if (data.success == true) {
+      if (data.success) {
         console.log("User successfully logged out");
         localStorage.removeItem("token"); // Clear the token from localStorage
-        localStorage.removeItem("userData");
         localStorage.setItem('LogoutToast', 'Logout Successfully!');
         history("/login"); // Redirect to login page
       } else {
@@ -165,7 +164,7 @@ const NavRight = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu align="end" className="profile-notification">
               <div className="pro-head">
-                <img src={avatar2} className="img-radius" alt="User Profile" />
+                <img src={avatar1} className="img-radius" alt="User Profile" />
                 <span>{storedUser}</span>
                 <Link to="#" className="dud-logout" title="Logout">
                   <i className="feather icon-log-out" onClick={()=>{logoutuser()}}/>

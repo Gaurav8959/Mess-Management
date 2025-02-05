@@ -1,9 +1,12 @@
 import avatar1 from 'assets/images/user/avatar-1.jpg';
+import avatar2 from 'assets/images/user/avatar-2.jpg';
+import avatar3 from 'assets/images/user/avatar-3.jpg';
+import avatar4 from 'assets/images/user/avatar-4.jpg';
 
 const chat = [
   {
-    friend_id: 1,
-    friend_photo: avatar1,
+    friend_id: 21,
+    friend_photo: avatar3,
     messages: [
       {
         type: 1,
@@ -21,7 +24,7 @@ const chat = [
         time: '8:22 a.m'
       }
     ]
-  },
+  }
 ];
 
 export default chat;
