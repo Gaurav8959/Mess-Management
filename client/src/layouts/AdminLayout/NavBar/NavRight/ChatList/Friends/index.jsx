@@ -13,24 +13,24 @@ const Friends = ({ listOpen }) => {
     setChatOpen(false);
   }, [listOpen]);
 
-  const friendList = friend.map((f) => {
-    return (
-      <Friend
-        key={f.id}
-        data={f}
-        activeId={user.id}
-        clicked={() => {
-          setChatOpen(true);
-          setUser(f);
-        }}
-      />
-    );
-  });
+  // const friendList = friend.map((f) => {
+  //   return (
+  //     <Friend
+  //       key={f.id}
+  //       data={f}
+  //       activeId={user.id}
+  //       clicked={() => {
+  //         setChatOpen(true);
+  //         setUser(f);
+  //       }}
+  //     />
+  //   );
+  // });
 
   return (
     <React.Fragment>
-      {friendList}
-      <Chat
+      {/* {friendList} */}
+      {/* <Chat
         user={user}
         chatOpen={chatOpen}
         listOpen={listOpen}
@@ -38,7 +38,7 @@ const Friends = ({ listOpen }) => {
           setChatOpen(false);
           setUser([]);
         }}
-      />
+      /> */}
     </React.Fragment>
   );
 };
