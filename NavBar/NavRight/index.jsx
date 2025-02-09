@@ -153,7 +153,7 @@ const NavRight = () => {
         <ListGroup.Item as="li" bsPrefix=" ">
           <Dropdown>
             <Dropdown.Toggle as={Link} variant="link" to="#" className="displayChatbox" onClick={() => setListOpen(true)}>
-            <i className="icon feather icon-user-check" />
+              <i className="icon feather icon-mail" />
             </Dropdown.Toggle>
           </Dropdown>
         </ListGroup.Item>

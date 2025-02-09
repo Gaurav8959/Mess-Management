@@ -56,7 +56,7 @@ const studentSchema = new mongoose.Schema({
   isOtpVerified: {
     type: Boolean,
   }
-});
+})
 
 
 //Hash Password

@@ -155,7 +155,7 @@ const DeleteStudent = async (req, res) => {
 };
 
 //Card Count update
-const CardCount = async(req, res) => {
+const CardCount = async (req, res) => {
   try {
     const id = req.params.id;
     const count = await cardNumber.findByIdAndUpdate(id, req.body, {
@@ -177,20 +177,19 @@ const CardCount = async(req, res) => {
       .status(400)
       .json({ success: false, message: "Internal Server Error" });
   }
-}
+};
 
 //Card Count Create
-const CardCountCreate = async(req, res) => {
-  
+const CardCountCreate = async (req, res) => {
   try {
     const { cardcount } = req.body;
-    if(!cardcount){
+    if (!cardcount) {
       return res
         .status(400)
         .json({ success: false, message: "Card Count is required" });
     }
     const cardnew = new cardNumber({
-      cardcount
+      cardcount,
     });
     await cardnew.save();
     if (!cardnew) {
@@ -209,10 +208,10 @@ const CardCountCreate = async(req, res) => {
       .status(400)
       .json({ success: false, message: "Internal Server Error" });
   }
-}
+};
 
 //card count get
-const CardCountGet = async(req, res) => {
+const CardCountGet = async (req, res) => {
   try {
     const cardcount = await cardNumber.find();
     if (!cardcount) {
@@ -231,11 +230,10 @@ const CardCountGet = async(req, res) => {
       .status(400)
       .json({ success: false, message: "Internal Server Error" });
   }
-}
+};
 
 //Create Card
 const CreateCard = async (req, res) => {
-  
   try {
     const {
       studentid,
@@ -248,7 +246,15 @@ const CreateCard = async (req, res) => {
       dueamount,
     } = req.body;
 
-    if (!studentid || !status || !date || !cardno || !cardenddate || !payableamount || !paidamount) {
+    if (
+      !studentid ||
+      !status ||
+      !date ||
+      !cardno ||
+      !cardenddate ||
+      !payableamount ||
+      !paidamount
+    ) {
       return res
         .status(404)
         .json({ success: false, message: "All fields are required" });
@@ -292,9 +298,9 @@ const GetCard = async (req, res) => {
     const { stdId } = req.query;
     let cards;
     if (stdId) {
-      cards = await card.find( { studentid:stdId } ).populate('studentid');
-    }else{
-      cards = await card.find().populate('studentid');
+      cards = await card.find({ studentid: stdId }).populate("studentid");
+    } else {
+      cards = await card.find().populate("studentid");
     }
     if (!cards || cards.length === 0) {
       return res
@@ -313,18 +319,22 @@ const Extend = async (req, res) => {
   try {
     const cardId = req.params.id;
     if (!cardId) {
-      return res.status(400).json({ success: false, message: "Invalid card ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid card ID" });
     }
     const updateCard = await card.findById(cardId);
     if (!updateCard) {
-      return res.status(404).json({ success: false, message: "Card not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Card not found" });
     }
 
-    Object.assign(updateCard, req.body)
+    Object.assign(updateCard, req.body);
 
-    if (updateCard.startdate){
-      console.log(updateCard.startdate)
-      updateCard.status = 'Hold'
+    if (updateCard.startdate) {
+      console.log(updateCard.startdate);
+      updateCard.status = "Hold";
     }
 
     if (updateCard.extendays && updateCard.extendays >= 6) {
@@ -332,7 +342,7 @@ const Extend = async (req, res) => {
       const newEndDate = new Date(updateCard.cardenddate);
       newEndDate.setDate(newEndDate.getDate() + extenddays);
       updateCard.cardenddate = newEndDate;
-      updateCard.status = 'Paid'
+      updateCard.status = "Paid";
     }
     await updateCard.save();
     return res.status(200).json({
@@ -711,8 +721,8 @@ const GetExpenses = async (req, res) => {
     const { expenseId } = req.query;
     let expenses;
     if (expenseId) {
-      expenses = await expense.findById( expenseId );
-    }else{
+      expenses = await expense.findById(expenseId);
+    } else {
       expenses = await expense.find();
     }
     if (!expenses || expenses.length === 0) {
@@ -726,7 +736,6 @@ const GetExpenses = async (req, res) => {
     res.status(400).json({ success: false, message: "Internal Server Error" });
   }
 };
-
 
 //Update Expenses
 const UpdateExpenses = async (req, res) => {
@@ -920,6 +929,187 @@ const ResetPassword = async (req, res) => {
   }
 };
 
+//Attendance
+
+// Function to determine the current meal type
+const getMealType = () => {
+  const currentHour = new Date().getHours();
+
+  if (currentHour < 11) {
+    return "breakfast";
+  } else if (currentHour >= 11 && currentHour < 16) {
+    return "lunch";
+  } else if (currentHour >= 16 && currentHour < 19) {
+    return "snacks";
+  } else if (currentHour >= 19 && currentHour < 23) {
+    return "dinner";
+  } else {
+    return "none";
+  }
+};
+
+// Controller to add data to the meals Map
+const markAttendance = async (req, res) => {
+  try {
+    const cardId = req.params.id; // Get the card ID from the URL parameter
+    if (!cardId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid card ID" });
+    }
+
+    // Step 1: Find the card by ID
+    const carD = await card.findById(cardId);
+    if (!carD) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Card not found" });
+    }
+
+    // Step 2: Determine the current meal type
+    const mealType = getMealType();
+    if (mealType === "none") {
+      return res
+        .status(400)
+        .json({ success: false, message: "No meal available at this time." });
+    }
+
+    // Step 3: Get today's date in "YYYY-MM-DD" format
+    const today = new Date().toISOString().split("T")[0];
+
+    // Step 4: Add the meal to the meals Map
+    if (!carD.meals.has(today)) {
+      // If the date does not exist, create a new entry
+      carD.meals.set(today, [mealType]);
+    } else {
+      // If the date exists, add the meal to the mealsAttended array
+      const mealsToday = carD.meals.get(today);
+      if (!mealsToday.includes(mealType)) {
+        mealsToday.push(mealType);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: `Attendance already marked for ${mealType}`,
+        });
+      }
+    }
+
+    // Step 5: Save the updated card document
+    await carD.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Attendance Marked",
+      carD,
+    });
+  } catch (error) {
+    console.log("Error marking attendance:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export default markAttendance;
+
+
+
+// const markAttendance = async (req, res) => {
+//   try {
+//     const cardId = req.params.id; // Get the card ID from the URL parameter
+//     if (!cardId) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Invalid card ID" });
+//     }
+
+//     // Find the card by ID
+//     const attendance = await card.findById(cardId);
+//     if (!attendance) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Card not found" });
+//     }
+
+//     // Determine the current meal type based on time
+//     const getMealType = () => {
+//       const currentHour = new Date().getHours();
+
+//       if (currentHour < 11) {
+//         return "breakfast";
+//       } else if (currentHour >= 11 && currentHour < 16) {
+//         return "lunch";
+//       } else if (currentHour >= 16 && currentHour < 19) {
+//         return "snacks";
+//       } else if (currentHour >= 19 && currentHour < 23) {
+//         return "dinner";
+//       } else {
+//         return "none";
+//       }
+//     };
+
+//     const mealType = getMealType();
+//     if (mealType === "none") {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "No meal available at this time." });
+//     }
+
+//     // Get today's date in "YYYY-MM-DD" format
+//     const today = new Date().toISOString().split('T')[0];
+
+//     // Debugging: Log the current date and meals array
+//     // console.log("Today's date:", today);
+//     // console.log("Current meals array before update:", attendance.meals);
+
+//     // Find or create today's meal entry
+//     //let mealEntry = attendance.meals.find((entry) => entry.date === today);
+//     let mealDate = Array.from(attendance.meals.keys())
+//     const lastInsertedDate = mealDate[mealDate.length - 1];
+//     if(!lastInsertedDate && !lastInsertedDate === today){
+
+//     }
+    
+//     if (!mealEntry && !mealEntry.date === today) {
+//       console.log("No meal entry found for today. Creating a new one.");
+//       mealEntry = { date: today, mealsAttended: [mealType] }; // Initialize mealsAttended with the current mealType
+//       attendance.meals.push(mealEntry);
+
+//       // Save the attendance document immediately after pushing the new mealEntry
+//       await attendance.save();
+//       console.log("New meal entry created and saved:", mealEntry);
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Attendance Marked",
+//         attendance,
+//       });
+//     }
+
+//     // Check if the meal has already been marked
+//     if (mealEntry.mealsAttended.includes(mealType)) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: `Attendance already marked for ${mealType}` });
+//     }
+
+//     // Add the meal to the mealsAttended array
+//     mealEntry.mealsAttended.push(mealType);
+//     await attendance.save();
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Attendance Marked",
+//       attendance,
+//     });
+//   } catch (error) {
+//     console.log("Error marking attendance:", error);
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "Internal Server Error" });
+//   }
+// };
+
 export {
   //Student
   CreateStudent,
@@ -965,4 +1155,7 @@ export {
   EmailForForgetPassword,
   CheckOtp,
   ResetPassword,
+
+  //Attendance
+  markAttendance,
 };

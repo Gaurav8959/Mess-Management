@@ -36,7 +36,7 @@ const AllSalary = () => {
     return date.toLocaleDateString('en-GB'); // Adjust locale as needed ('en-US' for MM/DD/YYYY, 'en-GB' for DD/MM/YYYY)
   };
 
-  const filteredData = data.filter((cards) => cards.status.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredData = data.filter((cards) => cards.studentid.fullname.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const handlePageChange = (pageNumber) => {

@@ -30,7 +30,8 @@ import {
   EmailForForgetPassword,
   CardCountGet,
   CheckOtp,
-  ResetPassword
+  ResetPassword,
+  markAttendance
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -52,6 +53,7 @@ router.post("/staffsalary", authenticate, StaffSalary);
 router.get("/readsalary", GetStaffSalary);
 router.delete("/deletestaffsalary/:id", authenticate, DeleteSalary);
 router.put("/updatesalary/:id", authenticate, UpdateStaffSalary);
+router.put("/markattendance/:id", authenticate, markAttendance);
 router.put('/updatestaff/:id',authenticate, UpdateStaff);
 router.put('/cardcount/:id', CardCount);
 router.get('/cardcountget', CardCountGet);

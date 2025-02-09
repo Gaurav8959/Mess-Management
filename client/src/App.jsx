@@ -20,6 +20,7 @@ import Cards from "views/cards/Cards";
 import Expenses from "views/expenses/Expenses";
 import Staff from "views/staff/Staff";
 import Salary from "views/staff/Salary";
+import AttendanceDetails from "views/cards/AttentanceD";
 function AuthWrapper({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ function App() {
           <Route path="/app/expenses" element={<Expenses />} />
           <Route path="/app/staff" element={<Staff />} />
           <Route path="/app/salary" element={<Salary />} />
+          <Route path="/app/Attendance/:stdId" element={<AttendanceDetails />} />
           <Route path="/app/card" element={<Cards />} />
           <Route path="/basic/button" element={<BasicButton />} />
           <Route path="/basic/badges" element={<BasicBadges />} />
