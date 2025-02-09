@@ -15,17 +15,23 @@ const DeleteStudent = ({ show, studentId,handleClose }) => {
           Authorization: `Bearer ${token}`
         }
       });
+  
       if (res.data.success === true) {
         toast.success(res.data.message);
       } else {
         toast.error(res.data.message);
       }
     } catch (error) {
-      console.error('Error deleting student:', error);
-      toast.error(error || 'An error occurred');
+      // Handle 400 error when card exists
+      if (error.response && error.response.status === 400) {
+        toast.error(error.response.data.message);
+      } else {
+        console.error('Error deleting student:', error);
+        toast.error(error.message || 'An error occurred');
+      }
     }
   };
-
+  
 //   const [del, setDel] = useState(show);
 //   const [stdid, setStdId] = useState(studentId);
   const handledelClose = () => {

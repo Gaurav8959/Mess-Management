@@ -138,6 +138,12 @@ const UpdateStudent = async (req, res) => {
 const DeleteStudent = async (req, res) => {
   try {
     const StudentId = req.params.id;
+    const cardExist = await card.findOne({studentid: StudentId});
+    if(cardExist){
+      return res
+        .status(400)
+        .json({ success: false, message: "Firstly delete the card of this student", cardExist});
+    }
     const DelStudent = await student.findByIdAndDelete(StudentId);
     if (!DelStudent) {
       return res

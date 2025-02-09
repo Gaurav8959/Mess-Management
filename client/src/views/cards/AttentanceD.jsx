@@ -24,7 +24,7 @@ const AttendanceDetails = () => {
     if (stdId) {
       fetchData();
     }
-  }, [stdId]); // Re-fetch if student ID changes
+  }, [data]); // Re-fetch if student ID changes
 
   return (
     <Row>
