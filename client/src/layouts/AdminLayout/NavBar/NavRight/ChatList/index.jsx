@@ -19,7 +19,7 @@ const ChatList = ({ listOpen, closed }) => {
   // Function to refetch data from the server
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8009/api/getcard');
+      const response = await axios.get('/api/getcard');
       const cardsData = response.data.cards.filter(card => card.status === "Paid") || [];
       setData(cardsData);
     } catch (error) {

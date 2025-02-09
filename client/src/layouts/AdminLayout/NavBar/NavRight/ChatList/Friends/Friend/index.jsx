@@ -29,7 +29,7 @@ const Friend = ({ data, onAttendanceMarked }) => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.put(
-        `http://localhost:8009/api/markattendance/${uniqueId}`,
+        `/api/markattendance/${uniqueId}`,
         { meals: getMealType() },
         {
           headers: {

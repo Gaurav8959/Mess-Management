@@ -32,7 +32,7 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const res = await axios.get(`http://localhost:8009/api/getstudent?stdId=${studentUid}`);
+        const res = await axios.get(`/api/getstudent?stdId=${studentUid}`);
         setStudent(res.data.students); // Make sure this matches the response data structure
       } catch (error) {
         console.log(error);
@@ -60,7 +60,7 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
       if (profilePhoto) {
         formData.append('profilephoto', profilePhoto);
       }
-      const res = await axios.put(`http://localhost:8009/api/updatestudent/${studentUid}`, formData, {
+      const res = await axios.put(`/api/updatestudent/${studentUid}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

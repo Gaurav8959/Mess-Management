@@ -10,7 +10,7 @@ const DeleteSalary = ({ show, salaryId,handleClose }) => {
   const Delete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.delete(`http://localhost:8009/api/deletestaffsalary/${id}`, {
+      const res = await axios.delete(`/api/deletestaffsalary/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

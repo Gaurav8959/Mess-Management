@@ -21,7 +21,7 @@ const AllStudents = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const student = await axios.get('http://localhost:8009/api/getstudent');
+        const student = await axios.get('/api/getstudent');
         const res = student.data;
         setData(res.students || []);
       } catch (error) {

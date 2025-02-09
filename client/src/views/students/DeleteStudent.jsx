@@ -10,7 +10,7 @@ const DeleteStudent = ({ show, studentId,handleClose }) => {
   const Delete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.delete(`http://localhost:8009/api/deletestd/${id}`, {
+      const res = await axios.delete(`/api/deletestd/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

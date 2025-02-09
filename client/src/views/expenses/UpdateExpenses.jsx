@@ -28,7 +28,7 @@ const UpdateStaff = ({ show, handleUclose, expensesUid }) => {
   useEffect(() => {
     const fetchExpensesData = async () => {
       try {
-        const res = await axios.get(`http://localhost:8009/api/readexpenses?expenseId=${expensesUid}`);
+        const res = await axios.get(`/api/readexpenses?expenseId=${expensesUid}`);
         const fetchedExpenses = res.data.expenses;
         setExpenses({
           ...fetchedExpenses,
@@ -54,7 +54,7 @@ const UpdateStaff = ({ show, handleUclose, expensesUid }) => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.put(
-        `http://localhost:8009/api/updateexpenses/${expensesUid}`,
+        `/api/updateexpenses/${expensesUid}`,
         expenses,
         {
           headers: {

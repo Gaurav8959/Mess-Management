@@ -33,7 +33,7 @@ const AddStaff = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:8009/api/createstaff', value, {
+      const res = await axios.post('/api/createstaff', value, {
         headers: {
           Authorization: `Bearer ${token}`
         }

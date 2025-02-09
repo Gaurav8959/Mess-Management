@@ -10,7 +10,7 @@ const AttendanceDetails = () => {
   // Fetch data from the API
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8009/api/getcard?stdId=${stdId}`);
+      const response = await axios.get(`/api/getcard?stdId=${stdId}`);
       const cardsData = response.data.cards.filter(card => card.status === "Paid");
       if (cardsData.length > 0) {
         setData(cardsData[0]); // Set only the first matched record

@@ -19,7 +19,7 @@ const AllStaff = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const staff = await axios.get('http://localhost:8009/api/getstaff');
+        const staff = await axios.get('/api/getstaff');
         const res = staff.data;
         setData(res.staffs || []);
       } catch (error) {

@@ -19,7 +19,7 @@ const AddSalary = () => {
   useEffect(() => {
     const getStaffList = async () => {
       try {
-        const res = await axios.get('http://localhost:8009/api/getstaff');
+        const res = await axios.get('/api/getstaff');
         setStaffList(res.data.staffs);
         // Transform staff list to options format for react-select
         const staffOptions = res.data.staffs.map(staff => ({
@@ -61,7 +61,7 @@ const AddSalary = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:8009/api/staffsalary', value, {
+      const res = await axios.post('/api/staffsalary', value, {
         headers: {
           Authorization: `Bearer ${token}`
         }

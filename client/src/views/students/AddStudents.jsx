@@ -64,7 +64,7 @@ const AddStudents = () => {
         formData.append(key, value[key]);
       });
 
-      const res = await axios.post('http://localhost:8009/api/createstudent', formData, {
+      const res = await axios.post('/api/createstudent', formData, {
         headers: {
           Authorization: `Bearer ${token}`
         }

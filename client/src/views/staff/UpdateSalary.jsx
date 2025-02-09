@@ -27,7 +27,7 @@ const UpdateStaff = ({ show, handleUclose, staffId, salaryUid }) => {
 
   const fetchStaffData = async () => {
     try {
-      const res = await axios.get(`http://localhost:8009/api/readsalary?staffId=${staffId}`);
+      const res = await axios.get(`/api/readsalary?staffId=${staffId}`);
       const fetchedSalary = res.data.salarys[0];
       setSalary({
         ...fetchedSalary,
@@ -53,7 +53,7 @@ const UpdateStaff = ({ show, handleUclose, staffId, salaryUid }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(`http://localhost:8009/api/updatesalary/${salaryUid}`, salary, {
+      const res = await axios.put(`/api/updatesalary/${salaryUid}`, salary, {
         headers: {
           Authorization: `Bearer ${token}`
         }

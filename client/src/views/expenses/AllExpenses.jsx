@@ -19,7 +19,7 @@ const AllStaff = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const expenses = await axios.get('http://localhost:8009/api/readexpenses');
+        const expenses = await axios.get('/api/readexpenses');
         const res = expenses.data;
         setData(res.expenses || []);
       } catch (error) {

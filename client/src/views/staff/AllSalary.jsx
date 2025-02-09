@@ -19,7 +19,7 @@ const AllSalary = () => {
 
   const fetchData = async () => {
     try {
-      const salary = await axios.get('http://localhost:8009/api/readsalary');
+      const salary = await axios.get('/api/readsalary');
       const res = salary.data;
       if (res.success && res.salarys.length === 0) {
         console.log(res.message); // Log the message for debugging

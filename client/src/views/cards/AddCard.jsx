@@ -30,7 +30,7 @@ const AddCards = () => {
 
   const getCardNo = async () => {
     try {
-      const cardcountnum = await axios.get('http://localhost:8009/api/cardcountget');
+      const cardcountnum = await axios.get('/api/cardcountget');
       setNumcard(cardcountnum.data.cardcount[0].cardcount);
       seMonthNum(cardcountnum.data.cardcount[0].lastUpdatedMonth);
     } catch (error) {
@@ -75,7 +75,7 @@ const AddCards = () => {
 
   const getStudentList = async () => {
     try {
-      const res = await axios.get('http://localhost:8009/api/getstudent');
+      const res = await axios.get('/api/getstudent');
       setStudentList(res.data.students);
       // Transform student list to options format for react-select
       const studentOptions = res.data.students.map(student => ({
@@ -118,7 +118,7 @@ const AddCards = () => {
   const monthupd = async () => {
     try {
       let currentmnth = new Date().getMonth() + 1;
-      const updatemnth = await axios.put(`http://localhost:8009/api/cardcount/677963a976ba3326d3b2ea74`, {
+      const updatemnth = await axios.put(`/api/cardcount/677963a976ba3326d3b2ea74`, {
         cardcount: 0,
         lastUpdatedMonth: currentmnth
       });
@@ -142,7 +142,7 @@ const AddCards = () => {
         return;
       }
 
-      const res = await axios.post('http://localhost:8009/api/createcard', value, {
+      const res = await axios.post('/api/createcard', value, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -152,7 +152,7 @@ const AddCards = () => {
 
       if (res.data.success === true) {
         try {
-          const updateres = await axios.put(`http://localhost:8009/api/cardcount/677963a976ba3326d3b2ea74`, {
+          const updateres = await axios.put(`/api/cardcount/677963a976ba3326d3b2ea74`, {
             cardcount: numcard + 1,
           });
 

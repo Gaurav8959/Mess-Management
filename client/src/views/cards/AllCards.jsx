@@ -20,7 +20,7 @@ const AllSalary = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const cards = await axios.get('http://localhost:8009/api/getcard');
+        const cards = await axios.get('/api/getcard');
         const res = cards.data;
         setData(res.cards || []);
       } catch (error) {

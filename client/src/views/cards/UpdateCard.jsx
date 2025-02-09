@@ -26,7 +26,7 @@ const UpdateCard = ({ show, handleUclose, StdUid, CardUId }) => {
   useEffect(() => {
     const fetchCardData = async () => {
       try {
-        const res = await axios.get(`http://localhost:8009/api/getcard?stdId=${StdUid}`);
+        const res = await axios.get(`/api/getcard?stdId=${StdUid}`);
         const fetchedCard = res.data.cards[0];
         //console.log(res.data.cards[0])
         const formattedCard = {
@@ -76,7 +76,7 @@ const UpdateCard = ({ show, handleUclose, StdUid, CardUId }) => {
     }
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(`http://localhost:8009/api/extendcard/${CardUId}`, card, {
+      const res = await axios.put(`/api/extendcard/${CardUId}`, card, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -103,7 +103,7 @@ const UpdateCard = ({ show, handleUclose, StdUid, CardUId }) => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.put(
-        `http://localhost:8009/api/extendcard/${CardUId}`,
+        `/api/extendcard/${CardUId}`,
         {
           dueamount: 0,
           status: 'Paid',

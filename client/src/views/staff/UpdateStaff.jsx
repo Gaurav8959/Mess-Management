@@ -22,7 +22,7 @@ const UpdateStaff = ({ show, handleUclose, staffUid }) => {
 
   const fetchStaffData = async () => {
     try {
-      const res = await axios.get(`http://localhost:8009/api/getstaff?staffId=${staffUid}`);
+      const res = await axios.get(`/api/getstaff?staffId=${staffUid}`);
       setStaff(res.data.staffs); // Make sure this matches the response data structure
     } catch (error) {
       console.log(error);
@@ -44,7 +44,7 @@ const UpdateStaff = ({ show, handleUclose, staffUid }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(`http://localhost:8009/api/updatestaff/${staffUid}`, staff,{
+      const res = await axios.put(`/api/updatestaff/${staffUid}`, staff,{
         headers: {
           Authorization: `Bearer ${token}`
         }
