@@ -15,10 +15,7 @@ connectDB();
 
 app.use(express.json());
 app.use(
-  cors({
-    origin: "http://localhost:3000", // The URL of your frontend
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-  })
+  cors()
 );
 app.use("/api", router);
 
