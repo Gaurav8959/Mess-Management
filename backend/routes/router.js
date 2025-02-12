@@ -36,9 +36,9 @@ import {
 
 const router = express.Router();
 
-router.post("/createstudent", authenticate, fileUpload, CreateStudent);
+router.post("/createstudent", authenticate, fileUpload.single('profilephoto'), CreateStudent);
 router.get("/getstudent", GetStudent);
-router.put("/updatestudent/:id", authenticate, fileUpload, UpdateStudent);
+router.put("/updatestudent/:id", authenticate, fileUpload.single('profilephoto'), UpdateStudent);
 router.delete("/deletestd/:id", authenticate, DeleteStudent);
 router.post("/createcard", authenticate, CreateCard);
 router.get("/getcard", GetCard);

@@ -6,9 +6,11 @@ import staffSalary from "../models/StaffSalary.js";
 import expense from "../models/Expenses.js";
 import cardNumber from "../models/CardNumber.js";
 import bcrypt from "bcryptjs";
+import cloudinary from "../config/cloudinary.js";
 import { sendVerification } from "../middleware/Email.js";
 import { isValidObjectId } from "mongoose";
 //Create Student API
+
 const CreateStudent = async (req, res) => {
   try {
     const {
@@ -22,28 +24,30 @@ const CreateStudent = async (req, res) => {
       password,
     } = req.body;
 
-    const profilephoto = req.file ? req.file.filename : null;
-
-    if (
-      !fullname ||
-      !fathername ||
-      !email ||
-      !mobile ||
-      !roomno ||
-      !branch ||
-      !year ||
-      !password
-    ) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
+    // Validate required fields
+    if (!fullname || !fathername || !email || !mobile || !roomno || !branch || !year || !password) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
     }
+
+    // Check if student already exists
     const ExistStudent = await student.findOne({ email });
     if (ExistStudent) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exist" });
+      return res.status(400).json({ success: false, message: 'User already exists' });
     }
+
+    // Handle profile photo upload (if provided)
+    let profilephoto = null;
+    let profilephotoPublicId = null;
+
+    if (req.file) {
+      profilephoto = req.file.path; // Cloudinary URL
+      profilephotoPublicId = req.file.filename; // Cloudinary public ID
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create new student
     const NewStudent = new student({
       fullname,
       fathername,
@@ -52,20 +56,24 @@ const CreateStudent = async (req, res) => {
       roomno,
       branch,
       year,
-      password,
+      password: hashedPassword,
       profilephoto,
+      profilephotoPublicId, // Store public ID for future updates
     });
+
     await NewStudent.save();
+
     res.status(200).json({
       success: true,
-      message: "Student Created Sucessfully",
+      message: 'Student Created Successfully',
       NewStudent,
     });
   } catch (error) {
-    console.log("Student Creation error internal", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error('Student Creation error:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
+
 
 //Read Student API
 const GetStudent = async (req, res) => {
@@ -100,39 +108,55 @@ const GetStudent = async (req, res) => {
 const UpdateStudent = async (req, res) => {
   try {
     const studentId = req.params.id;
-    const updateData = req.body;
+    const updateData = { ...req.body };
 
+    // Find existing student
+    const existingStudent = await student.findById(studentId);
+    if (!existingStudent) {
+      return res.status(404).json({ success: false, message: 'User Not Found' });
+    }
+
+    // Handle profile photo update (if new file is uploaded)
     if (req.file) {
-      updateData.profilephoto = req.file.filename;
+      // Delete old profile photo from Cloudinary (if exists)
+      if (existingStudent.profilephotoPublicId) {
+        await cloudinary.uploader.destroy(existingStudent.profilephotoPublicId);
+      }
+
+      // Save new Cloudinary URL and public ID
+      updateData.profilephoto = req.file.path; // Cloudinary URL
+      updateData.profilephotoPublicId = req.file.filename; // Cloudinary public ID
     }
 
-    // Check if password is being updated
+    // Hash password if provided
     if (req.body.password) {
-      req.body.password = await bcrypt.hash(req.body.password, 12); // Hash the new password
+      updateData.password = await bcrypt.hash(req.body.password, 12);
     }
 
-    const updateStudent = await student.findByIdAndUpdate(
+    // Update student record
+    const updatedStudent = await student.findByIdAndUpdate(
       studentId,
       updateData,
-      {
-        new: true,
-      }
+      { new: true }
     );
-    if (!updateStudent) {
-      return res
-        .status(404)
-        .josn({ success: false, messsage: "User Not Found" });
-    }
+
     res.status(200).json({
       success: true,
-      message: "Student Updated Successfully",
-      updateStudent,
+      message: 'Student Updated Successfully',
+      student: updatedStudent,
     });
   } catch (error) {
-    console.log("Student not found internal error", error);
-    res.status(400).json({ success: false, message: "Internal Server Error" });
+    console.error('Student Update error:', error);
+
+    // Handle Cloudinary-specific errors
+    if (error.message.includes('Cloudinary')) {
+      return res.status(500).json({ success: false, message: 'Error processing image upload' });
+    }
+
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
+
 
 //Delete Student
 const DeleteStudent = async (req, res) => {
@@ -145,6 +169,9 @@ const DeleteStudent = async (req, res) => {
         .json({ success: false, message: "Firstly delete the card of this student", cardExist});
     }
     const DelStudent = await student.findByIdAndDelete(StudentId);
+    if (DelStudent.profilephotoPublicId) {
+      await cloudinary.uploader.destroy(DelStudent.profilephotoPublicId);
+    }
     if (!DelStudent) {
       return res
         .status(404)

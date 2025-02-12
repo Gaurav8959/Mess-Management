@@ -59,7 +59,7 @@ const Friend = ({ data, onAttendanceMarked }) => {
               <img
                 className="media-object img-radius"
                 style={{ height: '50px' }}
-                src={elem.studentid.profilephoto ? `/src/assets/images/students/${elem.studentid.profilephoto}` : avatar1}
+                src={elem.studentid.profilephoto}
                 alt="Profile"
               />
               <div className="live-status">

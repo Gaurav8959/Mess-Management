@@ -9,34 +9,28 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
   const emptyStudent = {
     fullname: '',
     fathername: '',
-    password: '',
     roomno: '',
     branch: '',
     mobile: '',
     year: '',
-    email: '',
-  }
-  const [student, setStudent] = useState(emptyStudent);
-  const [profilePhoto, setProfilePhoto] = useState(null); // New state for file input
-
-
-  const handleinputChange = (e) => {
-    const {name, value} = e.target;
-    setStudent({...student, [name]: value});
-  }
-  const handleFileChange = (e) => {
-    setProfilePhoto(e.target.files[0]); // Handle file input
+    email: ''
   };
 
-  // Get Student by Id
+  const [student, setStudent] = useState(emptyStudent);
+  const [profilePhoto, setProfilePhoto] = useState(null); // New state for file input
+  const [previewPhoto, setPreviewPhoto] = useState(null); // For showing preview before upload
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch Student Data by ID
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
         const res = await axios.get(`/api/getstudent?stdId=${studentUid}`);
-        setStudent(res.data.students); // Make sure this matches the response data structure
+        setStudent(res.data.students);
+        setPreviewPhoto(res.data.students.profilephoto); // Set current profile photo
       } catch (error) {
-        console.log(error);
-        toast.error("Failed to fetch student data.");
+        console.error(error);
+        toast.error('Failed to fetch student data.');
       }
     };
 
@@ -45,50 +39,70 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
     }
   }, [studentUid]);
 
-  const handleUpdClose = () => {
-    handleUclose();
+  // Handle input field changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setStudent({ ...student, [name]: value });
   };
 
+  // Handle profile photo change
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setProfilePhoto(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setPreviewPhoto(reader.result); // Show preview
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
+
+      // Append form fields except password (only send if updated)
       Object.keys(student).forEach((key) => {
-        formData.append(key, student[key]);
+        if (key !== 'password' || student[key]) {
+          formData.append(key, student[key]);
+        }
       });
+
+      // Append only if a new profile photo is selected
       if (profilePhoto) {
         formData.append('profilephoto', profilePhoto);
       }
+
       const res = await axios.put(`/api/updatestudent/${studentUid}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       });
+
       if (res.status === 200) {
         toast.success(res.data.message);
+        setStudent(res.data.student); // Update student data
+        setPreviewPhoto(res.data.student.profilephoto); // Update preview only if changed
         handleUclose();
-      }else{
+      } else {
         toast.error(res.data.message);
       }
     } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message || 'Server error occurred');
-      } else {
-        toast.error('Internal server error');
-      }
       console.error(error);
+      toast.error(error.response?.data?.message || 'Internal server error');
     }
-  }
+    setIsLoading(false);
+  };
 
-  if (!student) {
-    return null; // Return null or a loading indicator until the student data is fetched
-  }
+  if (!student) return null;
 
   return (
     <>
-      <Modal show={show} onHide={handleUpdClose}>
+      <Modal show={show} onHide={handleUclose}>
         <Modal.Header closeButton className="theme-bg">
           <Modal.Title style={{ color: 'white' }}>Update Student</Modal.Title>
         </Modal.Header>
@@ -97,80 +111,69 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
             <Col md={12}>
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3 row">
-                  <Form.Group className="col-12 col-md-6 mb-3 mb-md-0">
+                  <Col md={6}>
                     <Form.Label>Full Name</Form.Label>
                     <Form.Control
                       type="text"
                       name="fullname"
                       value={student.fullname}
-                      onChange={handleinputChange}
-                      id="fullname"
-                      autoComplete="name"
+                      onChange={handleInputChange}
                       placeholder="Enter Full Name..."
                       required
                     />
-                  </Form.Group>
-                  <Form.Group className="col-12 col-md-6">
+                  </Col>
+                  <Col md={6}>
                     <Form.Label>Father Name</Form.Label>
                     <Form.Control
                       type="text"
                       name="fathername"
                       value={student.fathername}
-                      onChange={handleinputChange}
-                      autoComplete="family-name"
-                      id="fathername"
+                      onChange={handleInputChange}
                       placeholder="Enter Father Name..."
                       required
                     />
-                  </Form.Group>
+                  </Col>
                 </Form.Group>
 
                 <Form.Group className="mb-3 row">
-                  <Form.Group className="col-12 col-md-6 mb-3 mb-md-0">
+                  <Col md={6}>
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       type="email"
                       name="email"
                       value={student.email}
-                      onChange={handleinputChange}
-                      autoComplete="email"
-                      id="email"
+                      onChange={handleInputChange}
                       placeholder="Enter Your Email..."
                       required
                     />
-                  </Form.Group>
-                  <Form.Group className="col-12 col-md-6">
+                  </Col>
+                  <Col md={6}>
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                       type="password"
                       name="password"
-                      value={student.password}
-                      onChange={handleinputChange}
-                      id="password"
-                      autoComplete="password"
-                      placeholder="Password..."
-                      required
+                      value={student.password || ''}
+                      onChange={handleInputChange}
+                      placeholder="Enter New Password..."
                     />
-                  </Form.Group>
+                  </Col>
                 </Form.Group>
 
                 <Form.Group className="mb-3 row">
-                  <Form.Group className="col-12 col-md-6 mb-3 mb-md-0">
+                  <Col md={6}>
                     <Form.Label>Room No.</Form.Label>
                     <Form.Control
                       type="text"
                       name="roomno"
                       value={student.roomno}
-                      onChange={handleinputChange}
-                      id="roomno"
-                      autoComplete="roomno"
+                      onChange={handleInputChange}
                       placeholder="Enter Your Room No..."
                       required
                     />
-                  </Form.Group>
-                  <Form.Group className="col-12 col-md-6" controlId="formBasicBranch">
+                  </Col>
+                  <Col md={6}>
                     <Form.Label>Select Branch</Form.Label>
-                    <Form.Control as="select" name="branch" onChange={handleinputChange} value={student.branch}>
+                    <Form.Control as="select" name="branch" onChange={handleInputChange} value={student.branch}>
                       <option value="">--Select Branch--</option>
                       <option value="CS">CS</option>
                       <option value="IT">IT</option>
@@ -180,47 +183,20 @@ const UpdateStudent = ({ show, handleUclose, studentUid }) => {
                       <option value="Mpharma">Mpharma</option>
                       <option value="Polytechnic">Polytechnic</option>
                     </Form.Control>
-                  </Form.Group>
-                </Form.Group>
-
-                <Form.Group className="mb-3 row">
-                  <Form.Group className="col-12 col-md-6 mb-3 mb-md-0">
-                    <Form.Label>Mobile No.</Form.Label>
-                    <Form.Control
-                      type="number"
-                      name="mobile"
-                      value={student.mobile}
-                      onChange={handleinputChange}
-                      id="mobile"
-                      autoComplete="mobile"
-                      placeholder="Enter Your Mobile No..."
-                      required
-                    />
-                  </Form.Group>
-                  <Form.Group className="col-12 col-md-6">
-                    <Form.Label>Academic Year</Form.Label>
-                    <Form.Control
-                      type="number"
-                      name="year"
-                      value={student.year}
-                      onChange={handleinputChange}
-                      autoComplete="year"
-                      id="year"
-                      placeholder="Enter Academic Year..."
-                      required
-                    />
-                  </Form.Group>
+                  </Col>
                 </Form.Group>
 
                 <Form.Group className="mb-3">
                   <Form.Label>Upload Profile</Form.Label>
-                  <Form.Control type="file" name="profilephoto" onChange={handleFileChange} id="profilephoto" />
+                  <Form.Control type="file" name="profilephoto" value={student.profilePhoto} onChange={handleFileChange} accept="image/*" />
+                  {previewPhoto && <img src={previewPhoto} alt="Profile Preview" width="120px" height="120px" className="mt-2 rounded" />}
                 </Form.Group>
+
                 <Modal.Footer>
-                  <Button variant="primary" className="theme-bg" type="submit">
-                    Submit
+                  <Button variant="primary" className="theme-bg" type="submit" disabled={isLoading}>
+                    {isLoading ? 'Updating...' : 'Submit'}
                   </Button>
-                  <Button variant="secondary" onClick={handleUpdClose}>
+                  <Button variant="secondary" onClick={handleUclose}>
                     Close
                   </Button>
                 </Modal.Footer>

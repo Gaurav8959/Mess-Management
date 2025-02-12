@@ -137,7 +137,7 @@ const AllStudents = () => {
                             style={{ width: '40px', height: '40px' }}
                             src={
                               student.profilephoto
-                                ? `/src/assets/images/students/${student.profilephoto}`
+                                ? student.profilephoto
                                 : `/src/assets/images/user/avatar-1.jpg`
                             }
                             alt={student.fullname || 'Student'}

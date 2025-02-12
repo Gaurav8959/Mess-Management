@@ -47,6 +47,10 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  profilephotoPublicId: {
+    type: String,
+    required: true,
+  },
   otp: {
     type: Number,
   },
